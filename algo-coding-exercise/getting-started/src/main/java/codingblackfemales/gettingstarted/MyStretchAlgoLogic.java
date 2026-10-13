@@ -7,7 +7,6 @@ import codingblackfemales.action.NoAction;
 import codingblackfemales.algo.AlgoLogic;
 import codingblackfemales.sotw.ChildOrder;
 import codingblackfemales.sotw.SimpleAlgoState;
-import codingblackfemales.util.Util;
 import messages.order.Side;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,15 +36,20 @@ public class MyStretchAlgoLogic implements AlgoLogic {
     @Override
     public Action evaluate(SimpleAlgoState state) {
 
-        logger.info("[STRETCH] Order book:\n" + Util.orderBookToString(state));
+        logger.info("[STRETCH] bidLevels=" + state.getBidLevels() + " askLevels=" + state.getAskLevels());
 
         // Need both sides of the book to judge the market
         if (state.getBidLevels() == 0 || state.getAskLevels() == 0) {
             return NoAction.NoAction;
         }
 
-        long bestBid = state.getBidAt(0).price;
-        long bestAsk = state.getAskAt(0).price;
+        var bidLevel = state.getBidAt(0);
+        var askLevel = state.getAskAt(0);
+        if (bidLevel == null || askLevel == null) {
+            return NoAction.NoAction;
+        }
+        long bestBid = bidLevel.price;
+        long bestAsk = askLevel.price;
         long mid = (bestBid + bestAsk) / 2;
 
         // Track the recent mid prices
